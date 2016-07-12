@@ -1,0 +1,6 @@
+/bin/
+*.data
+twitter4j.properties
+.metadata/
+.settings
+*.data
