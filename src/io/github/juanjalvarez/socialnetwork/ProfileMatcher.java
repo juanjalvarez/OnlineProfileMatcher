@@ -5,9 +5,9 @@ import java.util.ArrayList;
 public class ProfileMatcher {
 
 	private double[][] similarityMap;
+	private boolean singleList;
 	private Profile[] list1;
 	private Profile[] list2;
-	private boolean singleList;
 
 	public ProfileMatcher(Profile[] l1, Profile[] l2) {
 		list1 = l1;
@@ -57,6 +57,7 @@ public class ProfileMatcher {
 				if (thread.isFinished())
 					x++;
 		}
+		ComparisonThread.pw.close();
 		System.out.println(String.format("It took the system %d seconds to finish matching profiles",
 				(System.currentTimeMillis() - start) / 1000));
 	}
@@ -72,12 +73,13 @@ public class ProfileMatcher {
 				if (maxIdxA[x] < similarityMap[x][y])
 					maxIdxA[x] = y;
 		}
-		for (x = 0; x < list2.length; x++) {
-			maxIdxB[x] = x;
-			for (y = 0; y < list1.length; y++)
-				if (maxIdxB[x] < similarityMap[y][x])
-					maxIdxB[x] = y;
-		}
+		if (!singleList)
+			for (x = 0; x < list2.length; x++) {
+				maxIdxB[x] = x;
+				for (y = 0; y < list1.length; y++)
+					if (maxIdxB[x] < similarityMap[y][x])
+						maxIdxB[x] = y;
+			}
 		ArrayList<ProfileMatch> matchList = new ArrayList<ProfileMatch>();
 		for (x = 0; x < maxIdxA.length; x++)
 			for (y = singleList ? x + 1 : 0; y < maxIdxB.length; y++)
@@ -87,12 +89,22 @@ public class ProfileMatcher {
 	}
 
 	public static void main(String[] arguments) throws Exception {
-		//Profile[] a = ProfileIO.loadProfiles("a");
-		//Profile[] b = ProfileIO.loadProfiles("b");
-		Profile[] obama = ProfileIO.loadProfiles("Barack Obama");
-		ProfileMatcher pm = new ProfileMatcher(obama);
+		Profile[] a = ProfileIO.loadProfiles("a.data");
+		Profile[] b = ProfileIO.loadProfiles("b.data");
+		Profile[] single = ProfileIO.loadProfiles("Bill Gates.data");
+		ProfileMatcher pm = new ProfileMatcher(a, b);
 		ProfileMatch[] arr = pm.match();
+		int x, y;
+		ProfileMatch tmp;
+		for (x = 0; x < arr.length; x++)
+			for (y = x + 1; y < arr.length; y++)
+				if (arr[x].getRelation() > arr[y].getRelation()) {
+					tmp = arr[x];
+					arr[x] = arr[y];
+					arr[y] = tmp;
+				}
 		for (ProfileMatch match : arr)
 			System.out.println(match.toString());
+		System.out.println(String.format("Identified %d matches", arr.length));
 	}
 }

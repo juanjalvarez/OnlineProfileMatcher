@@ -1,6 +1,7 @@
 /bin/
 *.data
+*.csv
 twitter4j.properties
 .metadata/
 .settings
-*.data
+/target/

@@ -1,16 +1,26 @@
 package io.github.juanjalvarez.socialnetwork;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.HashSet;
 
+import info.debatty.java.stringsimilarity.Cosine;
+import info.debatty.java.stringsimilarity.JaroWinkler;
+import info.debatty.java.stringsimilarity.MetricLCS;
+import info.debatty.java.stringsimilarity.NGram;
+import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
+
 /**
- * Collection of algorithms used throughout the application.
+ * Collection of algorithms for various purposes such as string comparison.
  * 
  * @author Juan J. Alvarez <juanalvarez2@mail.usf.edu>
  *
  */
-public class Algorithms {
+public class Algorithm {
+	
+	public static final MetricLCS METRIC_LCS = new MetricLCS();
+	public static final NormalizedLevenshtein LEVENSHTEIN = new NormalizedLevenshtein();
+	public static final JaroWinkler JARO_WINKLER = new JaroWinkler();
+	public static final Cosine COSINE = new Cosine();
+	public static final NGram N_GRAM = new NGram(2);
 
 	/**
 	 * Yields a string representation of the phonetic code of the given string.
@@ -101,26 +111,15 @@ public class Algorithms {
 	}
 
 	/**
-	 * Finds and yields the longest substring common to both given strings.
+	 * Calculates the similarity of two lists based on the repetitions of their
+	 * common elements.
 	 * 
-	 * @param str1
-	 *            First string.
-	 * @param str2
-	 *            Second string.
-	 * @return Longest substring common to both given strings.
+	 * @param arr1
+	 *            First list.
+	 * @param arr2
+	 *            Second list.
+	 * @return Similarity between arr1 and arr2.
 	 */
-	public static String longestCommonSubstring(String str1, String str2) {
-		String longest = "", section;
-		int x, y;
-		for (x = 0; x < str1.length(); x++)
-			for (y = x; y < str1.length(); y++) {
-				section = str1.substring(x, y + 1);
-				if (str2.contains(section) && section.length() > longest.length())
-					longest = section;
-			}
-		return longest;
-	}
-
 	public static <E> double cosineSimilarity(E[] arr1, E[] arr2) {
 		HashSet<E> set = new HashSet<E>();
 		for (E e : arr1)
@@ -132,9 +131,9 @@ public class Algorithms {
 		int[] rep1 = new int[set.size()], rep2 = new int[set.size()];
 		int x;
 		for (x = 0; x < repVal.length; x++)
-			rep1[x] = Algorithms.<E> countRepetitions(arr1, repVal[x]);
+			rep1[x] = Algorithm.<E> countRepetitions(arr1, repVal[x]);
 		for (x = 0; x < repVal.length; x++)
-			rep2[x] = Algorithms.<E> countRepetitions(arr2, repVal[x]);
+			rep2[x] = Algorithm.<E> countRepetitions(arr2, repVal[x]);
 		double numerator = 0, part1 = 0.0, part2 = 0.0, denominator;
 		for (x = 0; x < repVal.length; x++) {
 			numerator += rep1[x] * rep2[x];
@@ -145,31 +144,19 @@ public class Algorithms {
 		return numerator / denominator;
 	}
 
-	public static double cosineSimilarity(String str1, String str2) {
-		return Algorithms.<Character> cosineSimilarity(primitiveArrayToWrapperArray(str1.toCharArray()),
-				primitiveArrayToWrapperArray(str2.toCharArray()));
-	}
-
 	/**
-	 * Yields the longest common substring name similarity ratio.
+	 * Calculates the similarity of two strings based on the repeated characters
+	 * that are common to the two given strings.
 	 * 
 	 * @param str1
 	 *            First string.
 	 * @param str2
 	 *            Second string.
-	 * @return Longest common substring name similarity ratio.
+	 * @return Similarity between str1 and str2.
 	 */
-	public static double LCSStringSimilarity(String str1, String str2) {
-		String strA = str1, strB = str2;
-		String lcs = "";
-		while (true) {
-			lcs = longestCommonSubstring(strA, strB);
-			if (lcs.equals(""))
-				break;
-			strA = strA.replace(lcs, "");
-			strB = strB.replace(lcs, "");
-		}
-		return 1.0 - ((double) (strA.length() + strB.length()) / (double) (str1.length() + str2.length()));
+	public static double cosineSimilarity(String str1, String str2) {
+		return Algorithm.<Character> cosineSimilarity(primitiveArrayToWrapperArray(str1.toCharArray()),
+				primitiveArrayToWrapperArray(str2.toCharArray()));
 	}
 
 	/**
@@ -213,10 +200,21 @@ public class Algorithms {
 	 * @return Similarity ratio for the two given strings.
 	 */
 	public static double uniqueElementRatio(String str1, String str2) {
-		return Algorithms.<Character> uniqueElementRatio(primitiveArrayToWrapperArray(str1.toCharArray()),
+		return Algorithm.<Character> uniqueElementRatio(primitiveArrayToWrapperArray(str1.toCharArray()),
 				primitiveArrayToWrapperArray(str2.toCharArray()));
 	}
 
+	/**
+	 * Yields the similarity ratio between the two given arrays similarly to how
+	 * UniqueElementRatio does it but without taking into consideration the
+	 * uniqueness of the common elements.
+	 * 
+	 * @param arr1
+	 *            First array.
+	 * @param arr2
+	 *            Second array.
+	 * @return Similarity ratio between arr1 and arr2.
+	 */
 	public static <E> double elementDifferenceRatio(E[] arr1, E[] arr2) {
 		HashSet<E> set = new HashSet<E>();
 		for (E e : arr1)
@@ -227,13 +225,24 @@ public class Algorithms {
 		E[] repVal = (E[]) set.toArray();
 		int x, difference = 0;
 		for (x = 0; x < repVal.length; x++)
-			difference += Math.abs(Algorithms.<E> countRepetitions(arr1, repVal[x])
-					- Algorithms.<E> countRepetitions(arr2, repVal[x]));
+			difference += Math.abs(Algorithm.<E> countRepetitions(arr1, repVal[x])
+					- Algorithm.<E> countRepetitions(arr2, repVal[x]));
 		return 1.0 - (double) difference / (double) (arr1.length + arr2.length);
 	}
 
+	/**
+	 * Yields the similarity ratio between two arrays using the
+	 * ElementDifferenceRatio algorithm except with the characters of the two
+	 * given trings.
+	 * 
+	 * @param str1
+	 *            First string.
+	 * @param str2
+	 *            Second string.
+	 * @return Similarity ratio between str1 and str2.
+	 */
 	public static double elementDifferenceRatio(String str1, String str2) {
-		return Algorithms.<Character> elementDifferenceRatio(primitiveArrayToWrapperArray(str1.toCharArray()),
+		return Algorithm.<Character> elementDifferenceRatio(primitiveArrayToWrapperArray(str1.toCharArray()),
 				primitiveArrayToWrapperArray(str2.toCharArray()));
 	}
 
@@ -299,20 +308,5 @@ public class Algorithms {
 			if (e.equals(val))
 				count++;
 		return count;
-	}
-
-	public static void main(String[] a) throws Exception {
-		System.out.println("Please enter the two strings to compare, separated by '\\n'");
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		String str1 = br.readLine();
-		String str2 = br.readLine();
-		br.close();
-		System.out.println(String.format("String1: '%s'\nString2: '%s'", str1, str2));
-		System.out.println();
-		System.out.println(String.format("LCS similarity: %.2f", LCSStringSimilarity(str1, str2)));
-		System.out.println(String.format("UER similarity: %.2f", Algorithms.uniqueElementRatio(str1, str2)));
-		System.out.println(String.format("Cosine similarity: %.2f", cosineSimilarity(str1, str2)));
-		System.out.println(String.format("EDR similarity: %.2f", elementDifferenceRatio(str1, str2)));
-		System.out.println(String.format("Hamming distance: %.2f", hammingDistance(str1, str2)));
 	}
 }
