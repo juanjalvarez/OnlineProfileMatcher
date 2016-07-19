@@ -31,7 +31,7 @@ public class ProfileMatcher {
 	}
 
 	private void compareProfiles() {
-		System.out.println(String.format("Preparing to compare %d different users",
+		System.out.println(String.format("Preparing to compare %d times",
 				singleList ? list1.length : list1.length + list2.length));
 		ArrayList<ComparisonThread> threadList = new ArrayList<ComparisonThread>();
 		int cpus = Runtime.getRuntime().availableProcessors(), baseAmount = list1.length / cpus,
@@ -50,14 +50,15 @@ public class ProfileMatcher {
 				startIndex += curAmount;
 			}
 		}
+		for (Thread t : threadList)
+			t.start();
 		x = 0;
 		while (x != threadList.size()) {
 			x = 0;
 			for (ComparisonThread thread : threadList)
-				if (thread.isFinished())
+				if (!thread.isAlive())
 					x++;
 		}
-		ComparisonThread.pw.close();
 		System.out.println(String.format("It took the system %d seconds to finish matching profiles",
 				(System.currentTimeMillis() - start) / 1000));
 	}
@@ -86,25 +87,5 @@ public class ProfileMatcher {
 				if (maxIdxA[x] == y && maxIdxB[y] == x)
 					matchList.add(new ProfileMatch(list1[x], list2[y], similarityMap[x][y]));
 		return matchList.toArray(new ProfileMatch[matchList.size()]);
-	}
-
-	public static void main(String[] arguments) throws Exception {
-		Profile[] a = ProfileIO.loadProfiles("a.data");
-		Profile[] b = ProfileIO.loadProfiles("b.data");
-		Profile[] single = ProfileIO.loadProfiles("Bill Gates.data");
-		ProfileMatcher pm = new ProfileMatcher(a, b);
-		ProfileMatch[] arr = pm.match();
-		int x, y;
-		ProfileMatch tmp;
-		for (x = 0; x < arr.length; x++)
-			for (y = x + 1; y < arr.length; y++)
-				if (arr[x].getRelation() > arr[y].getRelation()) {
-					tmp = arr[x];
-					arr[x] = arr[y];
-					arr[y] = tmp;
-				}
-		for (ProfileMatch match : arr)
-			System.out.println(match.toString());
-		System.out.println(String.format("Identified %d matches", arr.length));
 	}
 }

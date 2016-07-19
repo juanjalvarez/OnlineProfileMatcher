@@ -15,7 +15,7 @@ import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
  *
  */
 public class Algorithm {
-	
+
 	public static final MetricLCS METRIC_LCS = new MetricLCS();
 	public static final NormalizedLevenshtein LEVENSHTEIN = new NormalizedLevenshtein();
 	public static final JaroWinkler JARO_WINKLER = new JaroWinkler();
@@ -225,8 +225,8 @@ public class Algorithm {
 		E[] repVal = (E[]) set.toArray();
 		int x, difference = 0;
 		for (x = 0; x < repVal.length; x++)
-			difference += Math.abs(Algorithm.<E> countRepetitions(arr1, repVal[x])
-					- Algorithm.<E> countRepetitions(arr2, repVal[x]));
+			difference += Math.abs(
+					Algorithm.<E> countRepetitions(arr1, repVal[x]) - Algorithm.<E> countRepetitions(arr2, repVal[x]));
 		return 1.0 - (double) difference / (double) (arr1.length + arr2.length);
 	}
 
@@ -263,6 +263,28 @@ public class Algorithm {
 
 	public static double hammingDistance(String str1, String str2) {
 		return hammingDistance(str1.getBytes(), str2.getBytes());
+	}
+
+	private static double catSequence(String str1, String str2, boolean forward) {
+		String a = str1, b = str2, tmp;
+		if (b.length() < a.length()) {
+			tmp = a;
+			a = b;
+			b = tmp;
+		}
+		int score = 0, idx = 0, x;
+		for (x = forward ? 0 : b.length() - 1; forward ? (x < b.length() && idx < a.length())
+				: (x > -1 && idx < a.length()); x = forward ? x + 1 : x - 1) {
+			if (b.charAt(x) == a.charAt(idx)) {
+				score++;
+				idx++;
+			}
+		}
+		return (double) score / (double) b.length();
+	}
+
+	public static double catSequenceAlgorithm(String str1, String str2) {
+		return Math.max(catSequence(str1, str2, true), catSequence(str1, str2, false));
 	}
 
 	/**

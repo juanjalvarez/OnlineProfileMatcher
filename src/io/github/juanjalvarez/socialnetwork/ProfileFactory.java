@@ -6,6 +6,9 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
+
+import org.json.JSONObject;
 
 import twitter4j.User;
 
@@ -13,10 +16,6 @@ public class ProfileFactory {
 
 	public static void convertFromTwitter(String fileName) throws Exception {
 		File f = new File(fileName);
-		if (!f.exists()) {
-			System.out.println(fileName + " not found");
-			return;
-		}
 		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
 		@SuppressWarnings("unchecked")
 		ArrayList<User> list = (ArrayList<User>) ois.readObject();
@@ -42,10 +41,6 @@ public class ProfileFactory {
 
 	public static void convertFromSynthetic(String fileName) throws Exception {
 		File f = new File(fileName);
-		if (!f.exists()) {
-			System.out.println(fileName + " not found");
-			return;
-		}
 		BufferedReader br = new BufferedReader(new FileReader(f));
 		String line;
 		String[] synth;
@@ -72,5 +67,63 @@ public class ProfileFactory {
 		}
 		br.close();
 		ProfileIO.saveProfiles(f.getName(), list.toArray(new Profile[list.size()]));
+	}
+
+	public static void convertFromFacebookAltered(String fileName) throws Exception {
+		File f = new File(fileName);
+		BufferedReader br = new BufferedReader(new FileReader(f));
+		StringTokenizer st = new StringTokenizer(br.readLine(), "|");
+		br.close();
+		ArrayList<Profile> list = new ArrayList<Profile>();
+		String cur, id, name;
+		String[] split;
+		StringBuilder sb;
+		Profile p;
+		int x;
+		while (st.hasMoreTokens()) {
+			cur = st.nextToken();
+			split = cur.split(" ");
+			id = split[0];
+			if (split.length > 2) {
+				sb = new StringBuilder();
+				for (x = 1; x < split.length; x++)
+					sb.append(split[x]);
+				name = sb.toString();
+			} else
+				name = split[1];
+			p = new Profile();
+			p.addField(new Field(FieldType.ID, "facebook_altered_id", id));
+			p.addField(new Field(FieldType.STRING, "realname", name));
+			list.add(p);
+		}
+		ProfileIO.saveProfiles(f.getName(), list.toArray(new Profile[list.size()]));
+	}
+
+	public static void convertFromVkAltered(String fileName) throws Exception {
+		File f = new File(fileName);
+		BufferedReader br = new BufferedReader(new FileReader(f));
+		String line, id, firstName, secondName;
+		JSONObject profileJSON, profileInfoJSON;
+		ArrayList<Profile> list = new ArrayList<Profile>();
+		while (true) {
+			line = br.readLine();
+			if (line == null)
+				break;
+			profileJSON = new JSONObject(line);
+			id = Long.toString(profileJSON.getLong("_id"));
+			profileInfoJSON = profileJSON.getJSONObject("info");
+			firstName = profileInfoJSON.getString("name");
+			secondName = profileInfoJSON.getString("secName");
+			Profile p = new Profile();
+			p.addField(new Field(FieldType.ID, "vk_altered_id", id));
+			p.addField(new Field(FieldType.STRING, "realname", firstName + " " + secondName));
+			list.add(p);
+		}
+		br.close();
+		ProfileIO.saveProfiles(f.getName(), list.toArray(new Profile[list.size()]));
+	}
+
+	public static void main(String[] arguments) throws Exception {
+		convertFromVkAltered("profiles_vk_altered\\vk.data");
 	}
 }

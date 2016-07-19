@@ -9,7 +9,10 @@ public class Field {
 	public Field(FieldType type, String name, String value) {
 		this.type = type;
 		this.name = name;
-		this.value = value;
+		if (value == null || value.equals(""))
+			this.value = "null";
+		else
+			this.value = value;
 	}
 
 	public FieldType getType() {

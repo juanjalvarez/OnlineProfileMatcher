@@ -26,8 +26,7 @@ public class ProfileMatch {
 
 	@Override
 	public String toString() {
-		return String.format("[%s @ %s] <=> [%s @ %s] = %.2f", a.getField("username").getValue(),
-				a.getField("realname").getValue(), b.getField("username").getValue(), b.getField("realname").getValue(),
-				relation);
+		return String.format("[%s] <=> [%s] = %.2f", a.getField("realname").getValue(),
+				b.getField("realname").getValue(), relation);
 	}
 }

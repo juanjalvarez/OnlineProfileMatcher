@@ -45,14 +45,4 @@ public class ProfileIO {
 		}
 		pw.close();
 	}
-
-	public static void test(String[] args) throws Exception {
-		Profile p = new Profile();
-		p.addField(new Field(FieldType.ID, "id", "100"));
-		Profile[] arr = { p, p, p, p, p, p, p };
-		saveProfiles("test.profilecluster", arr);
-		Profile[] arr2 = loadProfiles("test.profilecluster");
-		for (Profile profile : arr2)
-			System.out.println(profile.toString() + "\n");
-	}
 }
