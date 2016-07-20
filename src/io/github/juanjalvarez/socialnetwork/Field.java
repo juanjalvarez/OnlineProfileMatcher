@@ -39,14 +39,10 @@ public class Field {
 		this.value = value;
 	}
 
-	public static Field parseField(String data) {
+	public static Field parseField(String data) throws Exception {
 		String[] split = data.split(":|>");
 		if (split.length < 3)
-			try {
-				throw new Exception(String.format("'%s' is not a valid string form of Field", data));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			throw new Exception(String.format("'%s' is not a valid string form of Field", data));
 		String typeString = split[0];
 		String nameString = split[1];
 		StringBuilder sb = new StringBuilder();

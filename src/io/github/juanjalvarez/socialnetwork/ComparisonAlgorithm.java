@@ -76,23 +76,11 @@ public abstract class ComparisonAlgorithm {
 				public double compare(String a, String b) {
 					return 1.0 - Algorithm.JARO_WINKLER.distance(a, b);
 				}
-			}, new ComparisonAlgorithm("Cosine Similarity") {
-
-				@Override
-				public double compare(String a, String b) {
-					return 1.0 - Algorithm.COSINE.distance(a, b);
-				}
 			}, new ComparisonAlgorithm("N-Gram") {
 
 				@Override
 				public double compare(String a, String b) {
 					return Algorithm.N_GRAM.distance(a, b);
-				}
-			}, new ComparisonAlgorithm("INHOUSE - Hamming Distance") {
-
-				@Override
-				public double compare(String a, String b) {
-					return Algorithm.hammingDistance(a, b);
 				}
 			}, new ComparisonAlgorithm("INHOUSE - CAT Sequence") {
 

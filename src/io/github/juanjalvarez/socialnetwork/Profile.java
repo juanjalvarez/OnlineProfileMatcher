@@ -46,6 +46,14 @@ public class Profile {
 		return tmp.toArray(new Field[tmp.size()]);
 	}
 
+	public Field[] getAllFields() {
+		ArrayList<Field> list = new ArrayList<Field>();
+		for (FieldType type : FieldType.values())
+			if (fieldCache.get(type) != null)
+				list.addAll(fieldCache.get(type));
+		return list.toArray(new Field[list.size()]);
+	}
+
 	public static Profile parseProfile(String data) {
 		String[] lines = data.split("\\n");
 		if (lines.length == 0)

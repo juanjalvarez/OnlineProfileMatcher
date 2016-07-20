@@ -65,8 +65,8 @@ public class ComparisonThread extends Thread {
 					}
 					avgScore -= maxScore;
 					avgScore /= score.size() - 1;
-					totalScore = maxScore - avgScore;
-					matcher.proveRelation(profileX, profileY, totalScore);
+					totalScore = maxScore + avgScore;
+					matcher.proveRelation(algorithm, profileX, profileY, totalScore);
 				}
 			}
 		} catch (Exception e) {

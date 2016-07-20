@@ -1,5 +1,8 @@
 package io.github.juanjalvarez.socialnetwork;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class ProfileMatcher {
@@ -8,6 +11,7 @@ public class ProfileMatcher {
 	private boolean singleList;
 	private Profile[] list1;
 	private Profile[] list2;
+	private PrintWriter reportWriter;
 
 	public ProfileMatcher(Profile[] l1, Profile[] l2) {
 		list1 = l1;
@@ -26,13 +30,15 @@ public class ProfileMatcher {
 		singleList = true;
 	}
 
-	public void proveRelation(int x, int y, double score) {
+	public void proveRelation(ComparisonAlgorithm alg, int x, int y, double score) {
 		similarityMap[x][y] += score;
+		reportWriter.println(String.format("%s,%s,%s,%.2f", alg.getName(), list1[x].getField("realname"),
+				list2[y].getField("realname"), score));
 	}
 
 	private void compareProfiles() {
 		System.out.println(String.format("Preparing to compare %d times",
-				singleList ? list1.length : list1.length + list2.length));
+				singleList ? list1.length : list1.length * list2.length));
 		ArrayList<ComparisonThread> threadList = new ArrayList<ComparisonThread>();
 		int cpus = Runtime.getRuntime().availableProcessors(), baseAmount = list1.length / cpus,
 				remainder = list1.length % cpus, curRemainder, x, curAmount, startIndex;
@@ -64,28 +70,52 @@ public class ProfileMatcher {
 	}
 
 	public ProfileMatch[] match() {
+		try {
+			reportWriter = new PrintWriter("report.csv");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 		compareProfiles();
+		reportWriter.close();
 		int x, y;
 		int[] maxIdxA = new int[list1.length];
 		int[] maxIdxB = new int[list2.length];
 		for (x = 0; x < list1.length; x++) {
-			maxIdxA[x] = x;
+			maxIdxA[x] = 0;
 			for (y = 0; y < list2.length; y++)
-				if (maxIdxA[x] < similarityMap[x][y])
+				if (similarityMap[x][maxIdxA[x]] < similarityMap[x][y])
 					maxIdxA[x] = y;
 		}
-		if (!singleList)
-			for (x = 0; x < list2.length; x++) {
-				maxIdxB[x] = x;
-				for (y = 0; y < list1.length; y++)
-					if (maxIdxB[x] < similarityMap[y][x])
-						maxIdxB[x] = y;
-			}
+		for (x = 0; x < list2.length; x++) {
+			maxIdxB[x] = 0;
+			for (y = 0; y < list1.length; y++)
+				if (similarityMap[maxIdxB[x]][x] < similarityMap[y][x])
+					maxIdxB[x] = y;
+		}
 		ArrayList<ProfileMatch> matchList = new ArrayList<ProfileMatch>();
 		for (x = 0; x < maxIdxA.length; x++)
 			for (y = singleList ? x + 1 : 0; y < maxIdxB.length; y++)
 				if (maxIdxA[x] == y && maxIdxB[y] == x)
 					matchList.add(new ProfileMatch(list1[x], list2[y], similarityMap[x][y]));
+
+		try {
+			File f = new File("similarity.csv");
+			PrintWriter pw = new PrintWriter(f);
+			pw.print(",");
+			for (x = 0; x < list2.length; x++)
+				pw.print(list2[x].getField("username").getValue() + ",");
+			pw.println();
+			for (x = 0; x < similarityMap.length; x++) {
+				pw.print(list1[x].getField("username").getValue() + ",");
+				for (y = 0; y < similarityMap[x].length; y++)
+					pw.print(similarityMap[x][y] + ",");
+				pw.println();
+			}
+			pw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return matchList.toArray(new ProfileMatch[matchList.size()]);
 	}
 }

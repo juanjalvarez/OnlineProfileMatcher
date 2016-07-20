@@ -10,10 +10,11 @@ public class DatasetComparisonTest {
 	public static void main(String[] arguments) throws Exception {
 		Profile[] a = ProfileIO.loadProfiles("a.data");
 		Profile[] b = ProfileIO.loadProfiles("b.data");
-		Profile[] single = ProfileIO.loadProfiles("Linus Torvalds.data");
+		Profile[] single = ProfileIO.loadProfiles("Barack Obama.data");
+		Profile[] obamaFake = ProfileIO.loadProfiles("Facebook - Barack Obama.data");
 		Profile[] fb = ProfileIO.loadProfiles("fb.data");
 		Profile[] vk = ProfileIO.loadProfiles("vk.data");
-		ProfileMatcher pm = new ProfileMatcher(a, b);
+		ProfileMatcher pm = new ProfileMatcher(single, obamaFake);
 		ProfileMatch[] matchList = pm.match();
 		int x, y;
 		ProfileMatch tmp;

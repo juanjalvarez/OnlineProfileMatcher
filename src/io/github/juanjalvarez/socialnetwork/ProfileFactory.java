@@ -29,7 +29,6 @@ public class ProfileFactory {
 			p.addField(new Field(FieldType.STRING, "username", u.getScreenName()));
 			p.addField(new Field(FieldType.STRING, "realname", u.getName()));
 			p.addField(new Field(FieldType.LOCALIZATION, "language", u.getLang()));
-			p.addField(new Field(FieldType.STRING_DATA, "description", u.getDescription().replaceAll("\n", " ")));
 			p.addField(new Field(FieldType.LOCALIZATION, "location",
 					u.getLocation() == null || u.getLocation().equals("") ? "null" : u.getLocation()));
 			p.addField(new Field(FieldType.LOCALIZATION, "timezone", u.getTimeZone()));

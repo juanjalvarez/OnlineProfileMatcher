@@ -246,25 +246,6 @@ public class Algorithm {
 				primitiveArrayToWrapperArray(str2.toCharArray()));
 	}
 
-	public static double hammingDistance(byte[] seq1, byte[] seq2) {
-		byte[] small = seq1;
-		byte[] big = seq2;
-		if (small.length > big.length) {
-			byte[] tmp = small;
-			small = big;
-			big = tmp;
-		}
-		int diff = big.length - small.length, x;
-		for (x = 0; x < small.length; x++)
-			if (small[x] != big[x])
-				diff++;
-		return 1.0 - ((double) diff / (double) big.length);
-	}
-
-	public static double hammingDistance(String str1, String str2) {
-		return hammingDistance(str1.getBytes(), str2.getBytes());
-	}
-
 	private static double catSequence(String str1, String str2, boolean forward) {
 		String a = str1, b = str2, tmp;
 		if (b.length() < a.length()) {
