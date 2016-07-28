@@ -12,8 +12,27 @@ import org.json.JSONObject;
 
 import twitter4j.User;
 
+/**
+ * DEBUGGING CLASS, NOT MEANT TO BE PUT INTO A REAL DEVELOPMENT ENVIRONMENT
+ * 
+ * Provides a number of methods for converting profiles from different formats
+ * into the universal profile format used in this comparison software.
+ * 
+ * @author Juan J. Alvarez <juan.alvarez7@upr.edu>
+ *
+ */
 public class ProfileFactory {
 
+	/**
+	 * Converts all of the twitter profiles stored in the file with the given
+	 * name into the universal profile format.
+	 * 
+	 * @param fileName
+	 *            Name of the file to convert from.
+	 * @throws Exception
+	 *             If file does not exist or if there is a problem reading from
+	 *             the file.
+	 */
 	public static void convertFromTwitter(String fileName) throws Exception {
 		File f = new File(fileName);
 		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
@@ -38,6 +57,16 @@ public class ProfileFactory {
 		ois.close();
 	}
 
+	/**
+	 * Converts the synthetic profiles from file with the given name (very
+	 * specific case) into the universal profile format.
+	 * 
+	 * @param fileName
+	 *            Name of the file to convert from.
+	 * @throws Exception
+	 *             If file does not exist or if there is a problem reading from
+	 *             the file.
+	 */
 	public static void convertFromSynthetic(String fileName) throws Exception {
 		File f = new File(fileName);
 		BufferedReader br = new BufferedReader(new FileReader(f));
@@ -68,6 +97,16 @@ public class ProfileFactory {
 		ProfileIO.saveProfiles(f.getName(), list.toArray(new Profile[list.size()]));
 	}
 
+	/**
+	 * Converts facebook profiles from the file with the given name into the
+	 * univeral profile format.
+	 * 
+	 * @param fileName
+	 *            Name of the file to convert from.
+	 * @throws Exception
+	 *             If the file does not exist or if there is a problem reading
+	 *             from the file.
+	 */
 	public static void convertFromFacebookAltered(String fileName) throws Exception {
 		File f = new File(fileName);
 		BufferedReader br = new BufferedReader(new FileReader(f));
@@ -98,6 +137,16 @@ public class ProfileFactory {
 		ProfileIO.saveProfiles(f.getName(), list.toArray(new Profile[list.size()]));
 	}
 
+	/**
+	 * Converts the VK profiles in the file with the given name into the
+	 * universal profile format.
+	 * 
+	 * @param fileName
+	 *            Name of the file to convert from.
+	 * @throws Exception
+	 *             If the file does not exist or if there is a problem reading
+	 *             from the file.
+	 */
 	public static void convertFromVkAltered(String fileName) throws Exception {
 		File f = new File(fileName);
 		BufferedReader br = new BufferedReader(new FileReader(f));
@@ -120,9 +169,5 @@ public class ProfileFactory {
 		}
 		br.close();
 		ProfileIO.saveProfiles(f.getName(), list.toArray(new Profile[list.size()]));
-	}
-
-	public static void main(String[] arguments) throws Exception {
-		convertFromVkAltered("profiles_vk_altered\\vk.data");
 	}
 }

@@ -11,7 +11,7 @@ import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 /**
  * Collection of algorithms for various purposes such as string comparison.
  * 
- * @author Juan J. Alvarez <juanalvarez2@mail.usf.edu>
+ * @author Juan J. Alvarez <juan.alvarez7@upr.edu>
  *
  */
 public class Algorithm {
@@ -111,14 +111,14 @@ public class Algorithm {
 	}
 
 	/**
-	 * Calculates the similarity of two lists based on the repetitions of their
-	 * common elements.
+	 * Calculates the normalized similarity score of two lists based on the
+	 * repetitions of their common elements.
 	 * 
 	 * @param arr1
 	 *            First list.
 	 * @param arr2
 	 *            Second list.
-	 * @return Similarity between arr1 and arr2.
+	 * @return Normalized similarity score between arr1 and arr2.
 	 */
 	public static <E> double cosineSimilarity(E[] arr1, E[] arr2) {
 		HashSet<E> set = new HashSet<E>();
@@ -145,14 +145,14 @@ public class Algorithm {
 	}
 
 	/**
-	 * Calculates the similarity of two strings based on the repeated characters
-	 * that are common to the two given strings.
+	 * Calculates the normalized similarity score of two strings based on the
+	 * repeated characters that are common to the two given strings.
 	 * 
 	 * @param str1
 	 *            First string.
 	 * @param str2
 	 *            Second string.
-	 * @return Similarity between str1 and str2.
+	 * @return Normalized similarity score between str1 and str2.
 	 */
 	public static double cosineSimilarity(String str1, String str2) {
 		return Algorithm.<Character> cosineSimilarity(primitiveArrayToWrapperArray(str1.toCharArray()),
@@ -161,15 +161,15 @@ public class Algorithm {
 
 	/**
 	 * 
-	 * Yields the similarity ratio between the amount of common elements in the
-	 * two given arrays and the total amount of unique values between the two
-	 * given arrays.
+	 * Calculates the normalized similarity score between the amount of common
+	 * elements in the two given arrays and the total amount of unique values
+	 * between the two given arrays.
 	 * 
 	 * @param firstList
 	 *            First array.
 	 * @param secondList
 	 *            Second array.
-	 * @return Similarity ratio for the two given arrays.
+	 * @return Normalized similarity score for the two given arrays.
 	 */
 	public static <E> double uniqueElementRatio(E[] firstList, E[] secondList) {
 		double hits = 0.0;
@@ -189,15 +189,15 @@ public class Algorithm {
 	}
 
 	/**
-	 * Yields the similarity ratio between the common characters in the two
-	 * given strings and the total amount of unique characters in the
+	 * Calculates the normalized similarity score between the common characters
+	 * in the two given strings and the total amount of unique characters in the
 	 * concatenation of both given strings.
 	 * 
 	 * @param str1
 	 *            First string.
 	 * @param str2
 	 *            Second string.
-	 * @return Similarity ratio for the two given strings.
+	 * @return Normalized similarity score for the two given strings.
 	 */
 	public static double uniqueElementRatio(String str1, String str2) {
 		return Algorithm.<Character> uniqueElementRatio(primitiveArrayToWrapperArray(str1.toCharArray()),
@@ -205,15 +205,15 @@ public class Algorithm {
 	}
 
 	/**
-	 * Yields the similarity ratio between the two given arrays similarly to how
-	 * UniqueElementRatio does it but without taking into consideration the
-	 * uniqueness of the common elements.
+	 * Calculates the normalized similarity score between the two given arrays
+	 * similarly to how UniqueElementRatio does it but without taking into
+	 * consideration the uniqueness of the common elements.
 	 * 
 	 * @param arr1
 	 *            First array.
 	 * @param arr2
 	 *            Second array.
-	 * @return Similarity ratio between arr1 and arr2.
+	 * @return Normalized similarity score between arr1 and arr2.
 	 */
 	public static <E> double elementDifferenceRatio(E[] arr1, E[] arr2) {
 		HashSet<E> set = new HashSet<E>();
@@ -231,21 +231,35 @@ public class Algorithm {
 	}
 
 	/**
-	 * Yields the similarity ratio between two arrays using the
+	 * Calculates the normalized similarity score between two arrays using the
 	 * ElementDifferenceRatio algorithm except with the characters of the two
-	 * given trings.
+	 * given strings.
 	 * 
 	 * @param str1
 	 *            First string.
 	 * @param str2
 	 *            Second string.
-	 * @return Similarity ratio between str1 and str2.
+	 * @return Normalized similarity score between str1 and str2.
 	 */
 	public static double elementDifferenceRatio(String str1, String str2) {
 		return Algorithm.<Character> elementDifferenceRatio(primitiveArrayToWrapperArray(str1.toCharArray()),
 				primitiveArrayToWrapperArray(str2.toCharArray()));
 	}
 
+	/**
+	 * Calculates the normalized similarity score between two strings in the
+	 * given direction by searching for the shorter string within the larger
+	 * string, except taking into account for other characters being in between
+	 * the sequence of characters in the shorter string.
+	 * 
+	 * @param str1
+	 *            First string.
+	 * @param str2
+	 *            Second string.
+	 * @param forward
+	 *            Direction for which the algorithm will search.
+	 * @return Normalized similarity score between the two given strings.
+	 */
 	private static double catSequence(String str1, String str2, boolean forward) {
 		String a = str1, b = str2, tmp;
 		if (b.length() < a.length()) {
@@ -253,17 +267,28 @@ public class Algorithm {
 			a = b;
 			b = tmp;
 		}
-		int score = 0, idx = 0, x;
-		for (x = forward ? 0 : b.length() - 1; forward ? (x < b.length() && idx < a.length())
-				: (x > -1 && idx < a.length()); x = forward ? x + 1 : x - 1) {
-			if (b.charAt(x) == a.charAt(idx)) {
+		int score = 0, x;
+		for (x = forward ? 0 : b.length() - 1; forward ? (x < b.length() && score < a.length())
+				: (x > -1 && score < a.length()); x = forward ? x + 1 : x - 1) {
+			if (b.charAt(x) == a.charAt(score)) {
 				score++;
-				idx++;
 			}
 		}
 		return (double) score / (double) b.length();
 	}
 
+	/**
+	 * Calculates the normalized similarity score between two strings by
+	 * searching for the shorter string within the larger string, except taking
+	 * into account for other characters being in between the sequence of
+	 * characters in the shorter string.
+	 * 
+	 * @param str1
+	 *            First string.
+	 * @param str2
+	 *            Second string.
+	 * @return Normalized similarity score between the two given strings.
+	 */
 	public static double catSequenceAlgorithm(String str1, String str2) {
 		return Math.max(catSequence(str1, str2, true), catSequence(str1, str2, false));
 	}

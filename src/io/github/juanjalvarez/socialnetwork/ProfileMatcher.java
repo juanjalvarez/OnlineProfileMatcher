@@ -5,6 +5,13 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+/**
+ * Compares profiles and analyzes their similarity scores in order to identify
+ * matches.
+ * 
+ * @author Juan J. Alvarez <juan.alvarez7@upr.edu>
+ *
+ */
 public class ProfileMatcher {
 
 	private double[][] similarityMap;
@@ -13,6 +20,15 @@ public class ProfileMatcher {
 	private Profile[] list2;
 	private PrintWriter reportWriter;
 
+	/**
+	 * Constructs the profile matcher with the two given pools of profiles to
+	 * compare in.
+	 * 
+	 * @param l1
+	 *            First pool of profiles.
+	 * @param l2
+	 *            Second pool of profiles.
+	 */
 	public ProfileMatcher(Profile[] l1, Profile[] l2) {
 		list1 = l1;
 		list2 = l2;
@@ -25,20 +41,45 @@ public class ProfileMatcher {
 		singleList = false;
 	}
 
+	/**
+	 * Constructs the profile in such a way where it will only compare profiles
+	 * from the same given poo.
+	 * 
+	 * @param list
+	 *            Pool of profiles to compare profiels in.
+	 */
 	public ProfileMatcher(Profile[] list) {
 		this(list, list);
 		singleList = true;
 	}
 
+	/**
+	 * Increases the similarity score between the profiles at the given x index
+	 * of the first pool and y index of the second pool by the given amount.
+	 * 
+	 * @param alg
+	 *            String comparison algorithm that calculated the score in
+	 *            context.
+	 * @param x
+	 *            X index of the first pool of profiles.
+	 * @param y
+	 *            Y index of the second pool of profiles.
+	 * @param score
+	 *            Score of the two profiles in their respective indexes
+	 *            calculated with the given algorith.
+	 */
 	public void proveRelation(ComparisonAlgorithm alg, int x, int y, double score) {
 		similarityMap[x][y] += score;
 		reportWriter.println(String.format("%s,%s,%s,%.2f", alg.getName(), list1[x].getField("realname"),
 				list2[y].getField("realname"), score));
 	}
 
+	/**
+	 * Compares the profiles from the first pool with the profiles in the second
+	 * pool unless the matcher was constructed to compare from within the same
+	 * pool.
+	 */
 	private void compareProfiles() {
-		System.out.println(String.format("Preparing to compare %d times",
-				singleList ? list1.length : list1.length * list2.length));
 		ArrayList<ComparisonThread> threadList = new ArrayList<ComparisonThread>();
 		int cpus = Runtime.getRuntime().availableProcessors(), baseAmount = list1.length / cpus,
 				remainder = list1.length % cpus, curRemainder, x, curAmount, startIndex;
@@ -69,6 +110,13 @@ public class ProfileMatcher {
 				(System.currentTimeMillis() - start) / 1000));
 	}
 
+	/**
+	 * Compares the profiles from the first pool of profiles with the second
+	 * pool of profiles and selects the matches by analyzing the yielded
+	 * similarity scores.
+	 * 
+	 * @return List of matches that were identified.
+	 */
 	public ProfileMatch[] match() {
 		try {
 			reportWriter = new PrintWriter("report.csv");
